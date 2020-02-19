@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title> Слайдер </title>
+    <meta charset="utf-8" />
+
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+    <style>
+
+
+    </style>
+
+</head>
+
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+let img_width = 800;
+let img_height = 600;
+
+let data=[
+    {
+        "bg_img": "img1.jpg",
+        "user_name": "Шмелев Павел Александрович",
+        "user_img": "user.jpg",
+        "user_text": "lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem"
+    },
+    {
+        "bg_img": "img2.jpg",
+        "user_name": "Дудоладов Владимир Андреевич",
+        "user_img": "user.jpg",
+        "user_text": "lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem"
+    },
+    {
+        "bg_img": "img3.jpg",
+        "user_name": "Шмелев Павел Алексеевич",
+        "user_img": "user.jpg",
+        "user_text": "lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem"
+    },
+    {
+        "bg_img": "img4.jpg",
+        "user_name": "Борисов Денис Владимирович",
+        "user_img": "user.jpg",
+        "user_text": "lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem"
+    }
+];
+
+class Container extends React.Component
+{
+    constructor(props)
+    {
+        super(props);
+        this.style={
+            width: img_width + "px"
+        };
+        this.state={
+            currentImg: 0
+        };
+        this.slide_left=this.slide_left.bind(this);
+        this.slide_right=this.slide_right.bind(this);
+    }
+    slide_left()
+    {
+        if(this.state.currentImg!==0) this.setState({currentImg: --this.state.currentImg});
+    }
+    slide_right()
+    {
+        if(this.state.currentImg!==(this.props.data.length-1)) this.setState({currentImg: ++this.state.currentImg});
+    }
+    handleClickRadioBtn(i)
+    {
+        this.setState({currentImg: i});
+    }
+    render()
+    {
+        return (
+            <div className="Container" style={this.style}>
+                <Film currentImg={this.state.currentImg} data={this.props.data} />
+                <Panel handleClickLeft={this.slide_left} 
+                       handleClickRight={this.slide_right} 
+                       handleClickRadioBtn={(i)=>this.handleClickRadioBtn(i)} 
+                       currentRadioBtn={this.state.currentImg}
+                       data_length={this.props.data.length}
+                />
+            </div>
+        );
+    }
+};
+
+class Panel extends React.Component
+{
+    render()
+    {
+        return (
+            <div className="Panel">
+                <div> Отзывы Партнёров </div>
+                <Buttons handleClickLeft={this.props.handleClickLeft} handleClickRight={this.props.handleClickRight} />
+                <RadioButtonPanel handleClickRadioBtn={(i)=>this.props.handleClickRadioBtn(i)} 
+                                  currentRadioBtn={this.props.currentRadioBtn} 
+                                  data_length={this.props.data_length}
+                />
+            </div>
+        );
+    }
+};
+
+class Buttons extends React.Component
+{
+    render()
+    {
+        return (
+            <div className="Buttons">
+                <div onClick={this.props.handleClickLeft}> {"<"} </div>
+                <div onClick={this.props.handleClickRight}> {">"} </div>
+            </div>
+        );
+    }
+}
+
+class RadioButtonPanel extends React.Component
+{
+    constructor(props)
+    {
+        super(props);
+        this.buttons=[];
+    }
+    render()
+    {
+        for(let i=0;i<this.props.data_length;i++)
+            this.buttons[i]=<div className="radio_button" key={"radio_"+i} onClick={()=>this.props.handleClickRadioBtn(i)}>
+                <div className={i===this.props.currentRadioBtn ? "selected_radio_btn" : ""}></div>
+            </div>;
+
+        return (
+            <div className="RadioButtonPanel">
+                {this.buttons}
+            </div>
+        );
+    }
+};
+
+class Film extends React.Component
+{
+    constructor(props)
+    {
+        super(props);
+        this.film_content=[];
+        for(let i=0;i<this.props.data.length;i++)
+        {
+            this.film_content[i] = <Img bg_img={this.props.data[i].bg_img}
+                                        user_img={this.props.data[i].user_img}
+                                        user_name={this.props.data[i].user_name}
+                                        user_text={this.props.data[i].user_text}
+                                        key={i} 
+                                   />;
+        }
+    }
+    render()
+    {
+        this.style={
+            width: (img_width*this.props.data.length)+"px",
+            left: ((-1)*this.props.currentImg*img_width)+"px",
+        };
+
+        return (
+            <div className="Film" style={this.style}>
+                {this.film_content}
+            </div>
+        );
+    }
+};
+
+class Img extends React.Component
+{
+    constructor(props)
+    {
+        super(props);
+        this.bg_style={
+            width: img_width + "px",
+            height: img_height +"px",
+            backgroundImage: `url(${props.bg_img})`,
+            backgroundSize: "cover"
+        };
+        this.user_img_style={
+            backgroundImage: `url(${props.user_img})`
+        };
+    }
+    render()
+    {
+        return (
+            <div className="Img" style={this.bg_style}>
+                <div>
+                    <div>
+                        <div className="user_img" style={this.user_img_style}> </div>
+                        <div className="user_name"> {this.props.user_name} </div>
+                    </div>
+                    <div>
+                        {this.props.user_text}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+};
+
+
+
+ReactDOM.render(
+    <Container data={data} />,
+    document.querySelector("#root")
+);
+
+    </script>
+</body>
+
+</html>
